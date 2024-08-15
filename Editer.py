@@ -29,28 +29,33 @@ class Editer(object):
         self.color_page_name = '彩页'
         self.html_buffer = dict()
         
+        
         main_html = self.get_html(self.main_page ,is_gbk=True)
-        self.cata_page = self.url_head + re.search(r'<a href=\"(.*?)\">小说目录</a>', main_html).group(1)
-        cata_html = self.get_html(self.cata_page ,is_gbk=True)
-        bf = BeautifulSoup(cata_html, 'html.parser')
-        self.title = bf.find('div', {"id": "title"}).text
-        self.author = bf.find('div', {"id": "info"}).text[3:]
-        self.cover_url = re.findall(r'<img src=\"(.*?)\"', main_html)[1]
-    
-            
-        self.img_url_map = dict()
-        self.volume_no = volume_no
+        try:
+            self.cata_page = self.url_head + re.search(r'<a href=\"(.*?)\">小说目录</a>', main_html).group(1)
+        
+            cata_html = self.get_html(self.cata_page ,is_gbk=True)
+            bf = BeautifulSoup(cata_html, 'html.parser')
+            self.title = bf.find('div', {"id": "title"}).text
+            self.author = bf.find('div', {"id": "info"}).text[3:]
+            self.cover_url = re.findall(r'<img src=\"(.*?)\"', main_html)[1]
+        
+                
+            self.img_url_map = dict()
+            self.volume_no = volume_no
 
-        self.epub_path = root_path
-        self.temp_path = (os.path.join(self.epub_path,  'temp_'+ check_chars(self.title) + '_' + str(self.volume_no)))
-    
-        self.missing_last_chap_list = []
-        self.is_color_page = True
-        self.page_url_map = dict()
-        self.ignore_urls = []
-        self.url_buffer = []
-        self.max_thread_num = 8
-        self.pool = ThreadPoolExecutor(self.max_thread_num)
+            self.epub_path = root_path
+            self.temp_path = (os.path.join(self.epub_path,  'temp_'+ check_chars(self.title) + '_' + str(self.volume_no)))
+        
+            self.missing_last_chap_list = []
+            self.is_color_page = True
+            self.page_url_map = dict()
+            self.ignore_urls = []
+            self.url_buffer = []
+            self.max_thread_num = 8
+            self.pool = ThreadPoolExecutor(self.max_thread_num)
+        except Exception as e:
+            print('该书籍不存在！')
         
     # 获取html文档内容
     def get_html(self, url, is_gbk=False):
